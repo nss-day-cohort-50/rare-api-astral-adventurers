@@ -27,5 +27,5 @@ class PostSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Post
-        fields = ('id', 'author', 'category', 'title', 'content', 'image_url', 'publication_date', 'approved')
+        fields = ('id', 'author', 'category', 'title', 'content', 'image_url', 'publication_date', 'is_published', 'approved')
         depth = 1
