@@ -24,11 +24,10 @@ def register_user(request):
         email=request.data['email'],
         username=request.data['username'],
         password=request.data['password'],
-        is_staff=request.data['is_staff']
     )
 
     # Now save the extra info in the levelupapi_gamer table
-    gamer = Author.objects.create(
+    author = Author.objects.create(
         user=new_user,
         bio=request.data['bio'],
         profile_img_url=request.data['profile_img_url'],
