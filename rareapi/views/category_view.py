@@ -5,7 +5,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
-from rareapi.models import Author
+from rareapi.models import Author, Category
 from django.contrib.auth.models import User
 from rest_framework.decorators import action
 
@@ -38,13 +38,9 @@ class CategoryView(ViewSet):
 
 
             category = Category.objects.create(
-                game=Game.objects.get(pk=request.data["gameId"]),
-                organizer=Gamer.objects.get(user=request.auth.user),
-                description=request.data["description"],
-                date=request.data["date"],
-                time=request.data["time"],
+                label=request.data["label"],
             )
-            serializer = EventSerializer(event, context={'request': request})
+            serializer = CategorySerializer(category, context={'request': request})
             return Response(serializer.data)
 
         # If anything went wrong, catch the exception and
@@ -67,8 +63,8 @@ class CategoryView(ViewSet):
             #   http://localhost:8000/games/2
             #
             # The `2` at the end of the route becomes `pk`
-            event = Event.objects.get(pk=pk)
-            serializer = EventSerializer(event, context={'request': request})
+            category = Category.objects.get(pk=pk)
+            serializer = CategorySerializer(category, context={'request': request})
             #packages data to send back using event serializer at bottom, names it as serializer. result of method call is what is on variable. calling eventserializer and passing in parameters
             return Response(serializer.data) #calling response- a class. passing in the data
         except Exception as ex:
@@ -80,19 +76,13 @@ class CategoryView(ViewSet):
         Returns:
             Response -- Empty body with 204 status code
         """
-        gamer = Gamer.objects.get(user=request.auth.user)
-        event = Event.objects.get(pk=pk)
+        category = Category.objects.get(pk=pk)
         # Do mostly the same thing as POST, but instead of
         # creating a new instance of Game, get the game record
         # from the database whose primary key is `pk`
-        game=Game.objects.get(pk=request.data["gameId"])
-        event.game=game
-        event.organizer=Gamer.objects.get(user=request.auth.user)
-        event.description=request.data["description"]
-        event.date=request.data["date"]
-        event.time=request.data["time"]  
+        category.label=request.data["label"]
         
-        event.save()
+        category.save()
 
         # 204 status code means everything worked but the
         # server is not sending back any data in the response
@@ -105,12 +95,12 @@ class CategoryView(ViewSet):
             Response -- 200, 404, or 500 status code
         """
         try:
-            event = Event.objects.get(pk=pk)
-            event.delete()
+            category = Category.objects.get(pk=pk)
+            category.delete()
 
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-        except Event.DoesNotExist as ex:
+        except Category.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
@@ -123,63 +113,15 @@ class CategoryView(ViewSet):
             Response -- JSON serialized list of games
         """
         # Get the current authenticated user
-        gamer = Gamer.objects.get(user=request.auth.user)
+        author = Author.objects.get(user=request.auth.user)
         # Get all game records from the database
-        events = Event.objects.all()
+        categories = Category.objects.all()
 
-        # Set the `joined` property on every event
-        for event in events:
-            # Check to see if the gamer is in the attendees list on the event
-            event.joined = gamer in event.attendees.all()
 
-        # Support filtering games by type
-        #    http://localhost:8000/games?type=1
-        #
-        # That URL will retrieve all tabletop games
-        game = self.request.query_params.get('gameId', None) #none is a default value
-        if game is not None:
-            events = events.filter(game__id=type) #filtering by game ids
 
-        serializer = EventSerializer(
-            events, many=True, context={'request': request}) #add many=true if you get more than one response
+        serializer = CategorySerializer(
+            categories, many=True, context={'request': request}) #add many=true if you get more than one response
         return Response(serializer.data)
-
-    @action(methods=['post', 'delete'], detail=True)
-    def signup(self, request, pk=None):
-        """Managing gamers signing up for events"""
-        # Django uses the `Authorization` header to determine
-        # which user is making the request to sign up
-        gamer = Gamer.objects.get(user=request.auth.user)
-
-        try:
-            # Handle the case if the client specifies a game
-            # that doesn't exist
-            event = Event.objects.get(pk=pk)
-        except Event.DoesNotExist:
-            return Response(
-                {'message': 'Event does not exist.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # A gamer wants to sign up for an event
-        if request.method == "POST":
-            try:
-                # Using the attendees field on the event makes it simple to add a gamer to the event
-                # .add(gamer) will insert into the join table a new row the gamer_id and the event_id
-                event.attendees.add(gamer)
-                return Response({}, status=status.HTTP_201_CREATED)
-            except Exception as ex:
-                return Response({'message': ex.args[0]})
-
-        # User wants to leave a previously joined event
-        elif request.method == "DELETE":
-            try:
-                # The many to many relationship has a .remove method that removes the gamer from the attendees list
-                # The method deletes the row in the join table that has the gamer_id and event_id
-                event.attendees.remove(gamer)
-                return Response(None, status=status.HTTP_204_NO_CONTENT)
-            except Exception as ex:
-                return Response({'message': ex.args[0]})
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -190,42 +132,27 @@ class UserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ('firstName', 'lastName')
+        fields = ('firstName', 'lastName', 'email', 'username')
         depth = 1
 
-class GamerSerializer(serializers.ModelSerializer):
-    """JSON serializer for games
+class AuthorSerializer(serializers.ModelSerializer):
+    """JSON serializer for authors
 
     Arguments:
         serializer type
     """
     class Meta:
-        model = Gamer
-        fields = ('id', 'user', 'bio')
+        model = Author
+        fields = ('id', 'user', 'bio', 'profile_img_url', 'created_on')
         depth = 1
 
-class GameSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     """JSON serializer for games
 
     Arguments:
         serializer type
     """
     class Meta:
-        model = Event
-        fields = ('id', 'game_type', 'title', 'maker', 'gamer', 'number_of_players', 'skill_level')
-        depth = 2       
-
-
-class EventSerializer(serializers.ModelSerializer):
-    """JSON serializer for games
-
-    Arguments:
-        serializer type
-    """
-    # if you have other variables outside the Meta class just add this line
-    joined = serializers.BooleanField(required=False)
-    organizer= GamerSerializer()
-    class Meta:
-        model = Event
-        fields = ('id', 'game', 'organizer', 'description', 'date', 'time', 'attendees', 'joined')
+        model = Category
+        fields = ('id', 'label')
         depth = 1

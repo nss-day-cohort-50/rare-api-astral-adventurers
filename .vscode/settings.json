@@ -4,5 +4,13 @@
     "--django-settings-module=rare.settings",
 ],
     "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "rare",
+            "database": "db.sqlite3"
+        }
+    ]
 }
