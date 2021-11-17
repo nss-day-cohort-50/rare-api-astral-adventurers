@@ -1,0 +1,16 @@
+[
+    {
+        "model": "rareapi.post",
+        "pk": "1",
+        "fields": {
+            "author": 2,
+            "category" : 1,
+            "title": "Life",
+            "publication_date": "2021-11-15",
+            "is_published": false,
+            "image_url": null,
+            "content" : "Ladidaaaaaa",
+            "approved" :false
+        }
+    }
+]
