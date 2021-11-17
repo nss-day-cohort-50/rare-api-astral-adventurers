@@ -3,7 +3,7 @@
         "model": "rareapi.post",
         "pk": "1",
         "fields": {
-            "author": 1,
+            "author": 2,
             "category" : 1,
             "title": "Life",
             "publication_date": "2021-11-15",
