@@ -76,13 +76,13 @@ class TagView(ViewSet):
         Returns:
             Response -- Empty body with 204 status code
         """
-        category = Tag.objects.get(pk=pk)
+        tag = Tag.objects.get(pk=pk)
         # Do mostly the same thing as POST, but instead of
         # creating a new instance of Game, get the game record
         # from the database whose primary key is `pk`
-        category.label=request.data["label"]
+        tag.label=request.data["label"]
         
-        category.save()
+        tag.save()
 
         # 204 status code means everything worked but the
         # server is not sending back any data in the response
