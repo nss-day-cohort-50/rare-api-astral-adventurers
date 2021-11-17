@@ -9,11 +9,7 @@
         {
             "previewLimit": 50,
             "driver": "SQLite",
-<<<<<<< HEAD
-            "name": "rare",
-=======
             "name": "rareapi",
->>>>>>> main
             "database": "db.sqlite3"
         }
     ]

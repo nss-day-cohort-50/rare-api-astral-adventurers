@@ -1,0 +1,13 @@
+[
+    {
+        "model": "rareapi.author",
+        "pk": "1",
+        "fields": {
+            "user": 1,
+            "bio" : "Insane in the membrane",
+            "profile_img_url": null,
+            "created_on": "2021-11-15",
+            "active": true
+        }
+    }
+]
