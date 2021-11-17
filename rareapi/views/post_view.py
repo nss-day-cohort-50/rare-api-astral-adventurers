@@ -16,6 +16,14 @@ class PostView(ViewSet):
 
         posts = Post.objects.all()
 
+        # Support filtering games by author
+        #   http://localhost:8000/posts?author_id=${authorId}
+        #
+        # That URL will retrieve all posts by specific user
+        author = self.request.query_params.get('author', None)
+        if author is not None:
+            posts = posts.filter(author__id=author)
+
         posts_serial = PostSerializer(posts, many=True, context = {'request': request})
         # No need for a context since we're using ModelSerializer.
 
