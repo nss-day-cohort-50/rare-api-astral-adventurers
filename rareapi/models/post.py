@@ -7,6 +7,6 @@ class Post(models.Model):
     title = models.CharField(max_length=55)
     publication_date = models.DateField()
     is_published = models.BooleanField(default=False)
-    image_url = models.ImageField()
+    image_url = models.URLField()
     content = models.TextField()
     approved = models.BooleanField(default=False) 

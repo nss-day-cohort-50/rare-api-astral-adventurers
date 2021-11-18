@@ -8,7 +8,7 @@
             "title": "Life",
             "publication_date": "2021-11-15",
             "is_published": false,
-            "image_url": null,
+            "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/440px-Turkish_Van_Cat.jpg",
             "content" : "Ladidaaaaaa",
             "approved" :false
         }
@@ -23,7 +23,23 @@
             "title": "Cat",
             "publication_date": "2021-11-15",
             "is_published": false,
-            "image_url": null,
+            "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/440px-Turkish_Van_Cat.jpg",
+            "content" : "i am a cat",
+            "approved" :false
+        }
+    
+    },
+
+    {
+        "model": "rareapi.post",
+        "pk": "3",
+        "fields": {
+            "author": 1,
+            "category" : 1,
+            "title": "Cat",
+            "publication_date": "2021-11-15",
+            "is_published": false,
+            "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Turkish_Van_Cat.jpg/440px-Turkish_Van_Cat.jpg",
             "content" : "i am a cat",
             "approved" :false
         }
@@ -31,3 +47,10 @@
     }
 
 ]
+
+
+
+
+
+
+
