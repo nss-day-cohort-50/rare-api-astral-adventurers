@@ -1,9 +1,13 @@
 """Handle all HTTP requests for posts"""
+from datetime import date
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from rareapi.models import Post
+from rareapi.models import Post, Author, Category
 from rest_framework.decorators import action
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.http import HttpResponseServerError
 
 
 class PostView(ViewSet):
@@ -32,6 +36,37 @@ class PostView(ViewSet):
 
         return Response(posts_serial.data)
 
+    def create(self, request):
+        """Handle POST OPERATIONS
+
+        Returns:
+            Response -- JSON serialized post instance
+        """
+
+        # Uses the token passed in the 'Authorization' header
+        author = Author.objects.get(user=request.auth.user)
+        category = Category.objects.get(pk=request.data["categoryId"])
+        publication_date = date.today()
+        try:
+
+            post = Post.objects.create(
+                author=author,
+                category=category,
+                title=request.data["title"],
+                content=request.data["content"],
+                image_url=request.data["imageUrl"],
+                publication_date=publication_date,
+                is_published=False,
+                approved=False
+            )
+            serializer = PostSerializer(post)
+            return Response(serializer.data)
+
+        # If anything went wrong, catch the exception and
+        # send a response with a 400 status code to tell the
+        # client that something was wrong with its request data
+        except ValidationError as ex:
+            return Response({"reason": ex.message}, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
         """Handle GET requests for single post
@@ -62,14 +97,40 @@ class PostView(ViewSet):
             post.save()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = ('id', 'label')
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name')
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Author
+        fields = ('id', 'user')
+
+
 class PostSerializer(serializers.ModelSerializer):
     """JSON serializer for posts
 
     Arguments:
         serializer type
     """
+    author = AuthorSerializer()
+    category = CategorySerializer()
+
     class Meta:
         model = Post
         fields = ('id', 'author', 'category', 'title', 'content',
                   'image_url', 'publication_date', 'is_published', 'approved')
-        depth = 1
+        depth = 2
