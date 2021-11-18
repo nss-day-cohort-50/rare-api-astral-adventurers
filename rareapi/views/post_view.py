@@ -32,6 +32,21 @@ class PostView(ViewSet):
 
         return Response(posts_serial.data)
 
+
+    def retrieve(self, request, pk=None):
+        """Handle GET requests for single post
+
+        Returns:
+            Response -- JSON serialized game instance
+        """
+        try:
+            post = Post.objects.get(pk=pk)
+            serializer = PostSerializer(post, context={'request': request})
+            #packages data to send back using event serializer at bottom, names it as serializer. result of method call is what is on variable. calling eventserializer and passing in parameters
+            return Response(serializer.data) #calling response- a class. passing in the data
+        except Exception as ex:
+            return HttpResponseServerError(ex) #catches all errors, but want to 
+
     @action(methods=['put'], detail=True)
     def publish(self, request, pk=None):
         """Managing publish / unpublish buttons"""
