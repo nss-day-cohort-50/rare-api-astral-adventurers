@@ -44,6 +44,21 @@
             "approved" :false
         }
     
+    },
+    {
+        "model": "rareapi.post",
+        "pk": "4",
+        "fields": {
+            "author": 1,
+            "category" : 1,
+            "title": "Cat",
+            "publication_date": "2021-11-15",
+            "is_published": false,
+            "image_url": "",
+            "content" : "i am a cat",
+            "approved" :false
+        }
+    
     }
 
 ]
