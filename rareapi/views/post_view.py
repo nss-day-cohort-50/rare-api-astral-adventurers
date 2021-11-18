@@ -2,8 +2,9 @@
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from rareapi.models import Post
+from rareapi.models import Post, Author
 from rest_framework.decorators import action
+from django.contrib.auth.models import User
 
 
 class PostView(ViewSet):
@@ -62,12 +63,36 @@ class PostView(ViewSet):
             post.save()
             return Response({}, status=status.HTTP_204_NO_CONTENT)
 
+class UserSerializer(serializers.ModelSerializer):
+    """JSON serializer for games
+
+    Arguments:
+        serializer type
+    """
+    class Meta:
+        model = User
+        fields = ('firstName', 'lastName', 'email', 'username')
+        depth = 1
+
+class AuthorSerializer(serializers.ModelSerializer):
+    """JSON serializer for authors
+
+    Arguments:
+        serializer type
+    """
+    class Meta:
+        model = Author
+        fields = ('id', 'user', 'bio', 'profile_img_url', 'created_on')
+        depth = 1
+
+
 class PostSerializer(serializers.ModelSerializer):
     """JSON serializer for posts
 
     Arguments:
         serializer type
     """
+    author= AuthorSerializer()
     class Meta:
         model = Post
         fields = ('id', 'author', 'category', 'title', 'content',
