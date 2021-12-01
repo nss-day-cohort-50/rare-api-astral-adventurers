@@ -3,8 +3,8 @@ from datetime import date
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from rareapi.models import Post, Author, Category
 from rest_framework.decorators import action
+from rareapi.models import Post, Author, Category
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.http import HttpResponseServerError
@@ -109,7 +109,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name')
+        fields = ('id', 'first_name', 'last_name', 'username')
 
 
 class AuthorSerializer(serializers.ModelSerializer):
